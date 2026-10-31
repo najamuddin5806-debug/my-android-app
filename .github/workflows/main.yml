@@ -18,14 +18,20 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Generate Gradle Wrapper (Fixes missing gradlew)
-      run: gradle wrapper
+    - name: Initialize Gradle Build
+      run: gradle init --type basic --automation-language groovy --non-interactive --test-framework none || true
 
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      run: |
+        if [ -f ./gradlew ]; then
+          chmod +x gradlew
+        else
+          gradle wrapper
+          chmod +x gradlew
+        fi
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug
+      run: ./gradlew assembleDebug || gradle assembleDebug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
